@@ -20,7 +20,7 @@ if '-outputResolution' in sys.argv:
 if '-outputFilename' in sys.argv:
     print("-outputFilename")
 
-#get requirerd flags
+#get requirerd flags 
 
 if '-img' in sys.argv:
     print("-img")
