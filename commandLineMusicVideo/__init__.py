@@ -75,8 +75,34 @@ if '-songs' in sys.argv:
     print(arr)
     for filename in arr:
         if filename.endswith(audioFormat):
-            outputFilename = filename[len(audioFormat):]
-            print('outputFilename = ', outputFilename)
+            outputFilename = filename[:-len(audioFormat)-1]
+
+            if '-removeFirst' in sys.argv:
+                removeFirstIndex = sys.argv.index('-removeFirst')
+                removeFirst = sys.argv[removeFirstIndex+1]
+                outputFilename = outputFilename[int(removeFirst):]
+
+            if '-removeUpTo' in sys.argv:
+                removeUpToIndex = sys.argv.index('-removeUpTo')
+                removeUpToChar = sys.argv[removeUpToIndex+1]
+                removeAfterChar = sys.argv[removeUpToIndex+2] #optional, can be zero
+                removeUpToCharIndex = outputFilename.index(removeUpToChar)
+                outputFilename = outputFilename[int(removeUpToCharIndex)+int(removeAfterChar)+1:] 
+
+            if '-removeAfter' in sys.argv:
+                removeAfterIndex = sys.argv.index('-removeAfter')
+                removeAfterChar = sys.argv[removeAfterIndex+1]
+                removeAfterCharIndex = outputFilename.index(removeAfterChar)
+                outputFilename = outputFilename[:int(removeAfterCharIndex)]
+
+            if '-titleize' in sys.argv:
+                outputFilename = outputFilename.title()
+
+
+            print('outputFilename = [', outputFilename, ']')
+            outputFilename = songFilepath + '/' + outputFilename            
+            print('outputFilename = [', outputFilename, ']')
+
             renderVideo(songFilepath+''+filename, filename, imageFilepath, outputResolution, outputFilename)
 
 
