@@ -9,13 +9,24 @@ def renderVideo(sourceAudioFilepath, filename, imageFilepath, resolution, output
     print('renderVideo()')
 
 
+#ffmpeg -y -loop 1 -framerate 2 -i "front.jpg" -i "fighter.mp3" -c:v libx264 -tune stillimage -c:a aac -b:a 320k -pix_fmt yuv420p -shortest -fflags +shortest -max_interleave_delta 1G -t 00:02:23 "output video attempt.mp4"
+
     if filename.endswith('mp3'):
 
         ffmpegCommand = 'ffmpeg -loop 1 -framerate 2 -i "' + imageFilepath + '" -i "' + sourceAudioFilepath + '" -vf "scale=2*trunc(iw/2):2*trunc(ih/2),setsar=1,format=yuv420p" -c:v libx264 -preset medium -tune stillimage -crf 18 -c:a aac -b:a 320k -shortest -vf '+ 'scale=' + resolution + ' -pix_fmt yuv420p "' + outputFilename + '.mp4"' 
 
         print("\n**********\n"+ffmpegCommand+"\n**********\n")
+        os.system(ffmpegCommand)
 
-    os.system(ffmpegCommand)
+    elif filename.endswith('flac'):
+        ffmpegCommand = 'ffmpeg -loop 1 -framerate 2 -i "' + imageFilepath + '" -i "' + sourceAudioFilepath + '" -vf "scale=2*trunc(iw/2):2*trunc(ih/2),setsar=1,format=yuv420p" -c:v libx264 -preset medium -tune stillimage -crf 18 -c:a aac -b:a 320k -shortest -vf '+ 'scale=' + resolution + ' -pix_fmt yuv420p "' + outputFilename + '.mp4"'
+
+        print("\n**********\n"+ffmpegCommand+"\n**********\n")
+        os.system(ffmpegCommand)
+
+    else:
+        print("file format not supported (yet), please tweet at me @martinradio_ or email me ")
+
 
 def renderSingle():
     os.system('ffmpeg -loop 1 -framerate 2 -i "front.png" -i "testWAVfile.wav" -vf "scale=2*trunc(iw/2):2*trunc(ih/2),setsar=1,format=yuv420p" -c:v libx264 -preset medium -tune stillimage -crf 18 -c:a aac -shortest -vf scale=1920:1080  "outputVideoPy.mp4"')
@@ -53,25 +64,42 @@ if '-outputResolution' in sys.argv:
 if '-outputFilename' in sys.argv:
     print("-outputFilename")
 
-if '-songs' in sys.argv:
-    print('-songs')
-    songIndex = sys.argv.index('-songs')
+if '-song' in sys.argv:
+    print('song')
     #get songFilepath
-    songFilepath = sys.argv[songIndex+1]
-    print("songFilepath = ", songFilepath)
 
     #get audioFormat
-    audioFormat = sys.argv[songIndex+2]
-    print("audioFormat = ", audioFormat)
 
     #get imageFilepath
-    imageFilepath = sys.argv[songIndex+3]
+
+    #get filename
+
+    #check for other flags
+
+if '-songs' in sys.argv:
+    print('-songs')
+    songsIndex = sys.argv.index('-songs')
+    #get songsFilepath
+    songsFilepath = sys.argv[songsIndex+1]
+    print("songsFilepath = ", songsFilepath)
+
+    #get audioFormat
+    audioFormat = sys.argv[songsIndex+2]
+    print("audioFormat = ", audioFormat)
+
+    #get full imageFilepath
+    #imageFilepath = sys.argv[songsIndex+3]
+    #print("imageFilepath = ", imageFilepath)
+
+    #get imageFilename from same folder
+    imageFilename = sys.argv[songsIndex+3]
+    print("imageFilename = ", imageFilename)
+    imageFilepath = songsFilepath + '/' + imageFilename
     print("imageFilepath = ", imageFilepath)
 
-    #files = os.listdir(songFilepath)
-    #zero = []
-
-    arr = os.listdir(songFilepath)
+    #get filename for each song
+    #get
+    arr = os.listdir(songsFilepath)
     print(arr)
     for filename in arr:
         if filename.endswith(audioFormat):
@@ -100,10 +128,10 @@ if '-songs' in sys.argv:
 
 
             print('outputFilename = [', outputFilename, ']')
-            outputFilename = songFilepath + '/' + outputFilename            
+            outputFilename = songsFilepath + '/' + outputFilename            
             print('outputFilename = [', outputFilename, ']')
 
-            renderVideo(songFilepath+''+filename, filename, imageFilepath, outputResolution, outputFilename)
+            renderVideo(songsFilepath+''+filename, filename, imageFilepath, outputResolution, outputFilename)
 
 
 
