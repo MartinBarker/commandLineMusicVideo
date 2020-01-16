@@ -1,8 +1,14 @@
 import os
 import sys
 import glob
+import json
+
 
 print("inside martin's test pip package")
+
+
+
+
 print("the script has the name %s" % (sys.argv[0]))
 
 def renderVideo(sourceAudioFilepath, filename, imageFilepath, resolution, outputFilename):
@@ -13,7 +19,7 @@ def renderVideo(sourceAudioFilepath, filename, imageFilepath, resolution, output
 
     if filename.endswith('mp3'):
 
-        ffmpegCommand = 'ffmpeg -loop 1 -framerate 2 -i "' + imageFilepath + '" -i "' + sourceAudioFilepath + '" -vf "scale=2*trunc(iw/2):2*trunc(ih/2),setsar=1,format=yuv420p" -c:v libx264 -preset medium -tune stillimage -crf 18 -c:a aac -b:a 320k -shortest -vf '+ 'scale=' + resolution + ' -pix_fmt yuv420p "' + outputFilename + '.mp4"' 
+        ffmpegCommand = 'ffmpeg -loop 1 -framerate 2 -i "'+ imageFilepath +'" -i "'+ sourceAudioFilepath +'" -vf "scale=2*trunc(iw/2):2*trunc(ih/2),setsar=1" -c:v libx264 -preset medium -tune stillimage -crf 18 -c:a copy -b:a 320k -shortest -vf scale=' + resolution + ' -pix_fmt yuv420p "'+ outputFilename +'.mp4"'
 
         print("\n**********\n"+ffmpegCommand+"\n**********\n")
         os.system(ffmpegCommand)
@@ -27,31 +33,85 @@ def renderVideo(sourceAudioFilepath, filename, imageFilepath, resolution, output
     else:
         print("file format not supported (yet), please tweet at me @martinradio_ or email me ")
 
+def fullAlbum(songsFilepath, audioFormat, imageFilepath, outputResolution):
+    if audioFormat == 'mp3':
+        print("concat audio mp3")
+        concatString = "concat:"
+        arr = os.listdir(songsFilepath)
+        for filename in arr:
+            if filename.endswith(audioFormat):
+                songLocation = songsFilepath + '/' + filename
+                concatString = concatString + songLocation + '|'
 
-def renderSingle():
-    os.system('ffmpeg -loop 1 -framerate 2 -i "front.png" -i "testWAVfile.wav" -vf "scale=2*trunc(iw/2):2*trunc(ih/2),setsar=1,format=yuv420p" -c:v libx264 -preset medium -tune stillimage -crf 18 -c:a aac -shortest -vf scale=1920:1080  "outputVideoPy.mp4"')
+        #create concatAudio string     "concat:fighter.mp3|03life.mp3"
+        #render concatAudio.mp3    ffmpeg -i "concat:fighter.mp3|03life.mp3" -acodec copy concatAudio.mp3
+        print('concatString = ', concatString)
+        os.system('ffmpeg -i "' + concatString + '" -acodec copy "' + songsFilepath + '/concatAudio.mp3"')
 
-'''
-#mp3
-ffmpeg 
-    -loop 1 
-    -framerate 2 
-    -i "front.png" 
-    -i "testmp3file.MP3" 
-    -vf "scale=2*trunc(iw/2):2*trunc(ih/2),setsar=1" 
-    -c:v libx264 
-    -preset medium 
-    -tune stillimage 
-    -crf 18 
-    -c:a copy 
-    -shortest 
-    -pix_fmt yuv420p "$2/$5.mp4"  
-'''
+        renderVideo(songsFilepath+'/concatAudio.mp3', 'concatAudio.mp3', imageFilepath, outputResolution, songsFilepath+'/fullAlbum.mp4')
+        os.system('rm "'+ songsFilepath + '/concatAudio.mp3"')
 
+    elif audioFormat == 'flac':
+        #os.system('rm inputs.txt')
+        #os.system('rm "'+ songsFilepath + '/concatAudio.mp3"')
+        os.system('touch songinputs.txt')
+        arr = os.listdir(songsFilepath)
+        for filename in arr:
+            if filename.endswith(audioFormat):
+                songLocation = songsFilepath + '/' + filename
+                with open("songinputs.txt", "a") as myfile:
+                    songLocationString = songLocation.replace("'", "'\\''")   #   '\''
+                    myfile.write("file '" + songLocationString +"' \n")
+
+        os.system("ffmpeg -f concat -safe 0 -i songinputs.txt -safe 0 '" + songsFilepath + "/concatAudio.mp3'")
+        #os.system('rm inputs.txt')
+        renderVideo(songsFilepath+'/concatAudio.mp3', 'concatAudio.mp3', imageFilepath, outputResolution, songsFilepath+'/fullAlbum.mp4')
+        #os.system('rm "'+ songsFilepath + '/concatAudio.mp3"')
+
+def renderEachSong(songsFilepath, imageFilepath, audioFormat, outputResolution):
+    #renderEachSong(songsFilepath, imageFilepath, audioFormat, outputResolution)
+        #for each song
+    arr = os.listdir(songsFilepath)
+    print(arr)
+    for filename in arr:
+        if filename.endswith(audioFormat):
+            outputFilename = filename[:-len(audioFormat)-1]
+
+            if '-removeFirst' in sys.argv:
+                removeFirstIndex = sys.argv.index('-removeFirst')
+                removeFirst = sys.argv[removeFirstIndex+1]
+                outputFilename = outputFilename[int(removeFirst):]
+
+            if '-removeUpTo' in sys.argv:
+                removeUpToIndex = sys.argv.index('-removeUpTo')
+                removeUpToChar = sys.argv[removeUpToIndex+1]
+                removeAfterChar = sys.argv[removeUpToIndex+2] #optional, can be zero
+                removeUpToCharIndex = outputFilename.index(removeUpToChar)
+                outputFilename = outputFilename[int(removeUpToCharIndex)+int(removeAfterChar)+1:] 
+
+            if '-removeAfter' in sys.argv:
+                removeAfterIndex = sys.argv.index('-removeAfter')
+                removeAfterChar = sys.argv[removeAfterIndex+1]
+                removeAfterCharIndex = outputFilename.index(removeAfterChar)
+                outputFilename = outputFilename[:int(removeAfterCharIndex)]
+
+            if '-titleize' in sys.argv:
+                outputFilename = outputFilename.title()
+
+
+            print('outputFilename = [', outputFilename, ']')
+            outputFilename = songsFilepath + '/' + outputFilename            
+            print('outputFilename = [', outputFilename, ']')
+
+            renderVideo(songsFilepath+''+filename, filename, imageFilepath, outputResolution, outputFilename)
+
+    
+    print('')
+    
 
 #set default args
 outputFilename = None
-outputResolution = None
+outputResolution = "1920:1080"
 imgFilepath = None
 
 #get option flags
@@ -87,135 +147,19 @@ if '-songs' in sys.argv:
     audioFormat = sys.argv[songsIndex+2]
     print("audioFormat = ", audioFormat)
 
-    #get full imageFilepath
-    #imageFilepath = sys.argv[songsIndex+3]
-    #print("imageFilepath = ", imageFilepath)
-
     #get imageFilename from same folder
     imageFilename = sys.argv[songsIndex+3]
     print("imageFilename = ", imageFilename)
     imageFilepath = songsFilepath + '/' + imageFilename
     print("imageFilepath = ", imageFilepath)
 
-    #get filename for each song
-    #get
-    arr = os.listdir(songsFilepath)
-    print(arr)
-    for filename in arr:
-        if filename.endswith(audioFormat):
-            outputFilename = filename[:-len(audioFormat)-1]
+    if '-fullAlbumOnly' in sys.argv:
+        fullAlbum(songsFilepath, audioFormat, imageFilepath, outputResolution)
 
-            if '-removeFirst' in sys.argv:
-                removeFirstIndex = sys.argv.index('-removeFirst')
-                removeFirst = sys.argv[removeFirstIndex+1]
-                outputFilename = outputFilename[int(removeFirst):]
-
-            if '-removeUpTo' in sys.argv:
-                removeUpToIndex = sys.argv.index('-removeUpTo')
-                removeUpToChar = sys.argv[removeUpToIndex+1]
-                removeAfterChar = sys.argv[removeUpToIndex+2] #optional, can be zero
-                removeUpToCharIndex = outputFilename.index(removeUpToChar)
-                outputFilename = outputFilename[int(removeUpToCharIndex)+int(removeAfterChar)+1:] 
-
-            if '-removeAfter' in sys.argv:
-                removeAfterIndex = sys.argv.index('-removeAfter')
-                removeAfterChar = sys.argv[removeAfterIndex+1]
-                removeAfterCharIndex = outputFilename.index(removeAfterChar)
-                outputFilename = outputFilename[:int(removeAfterCharIndex)]
-
-            if '-titleize' in sys.argv:
-                outputFilename = outputFilename.title()
-
-
-            print('outputFilename = [', outputFilename, ']')
-            outputFilename = songsFilepath + '/' + outputFilename            
-            print('outputFilename = [', outputFilename, ']')
-
-            renderVideo(songsFilepath+''+filename, filename, imageFilepath, outputResolution, outputFilename)
-
-
-
-
-    #render single
-    #renderSingle()
-
-#elif '-songs' in sys.argv:
-#    print("-songs (multiple)")
-
-'''
-outputFilepath = songFilepath[:indexOfLastPeriod] 
-outputFilepath = outputFilepath + '.mp4'
-print("outputFilepath = ", outputFilepath)
-
-ffmpegCommand = 'ffmpeg -loop 1 -framerate 2 -i "' + imgFilepath + '" -i "' + songFilepath + '" -vf "scale=2*trunc(iw/2):2*trunc(ih/2),setsar=1,format=yuv420p" -c:v libx264 -preset medium -tune stillimage -crf 18 -c:a aac -shortest -vf scale=1920:1080 -pix_fmt yuv420p -strict -2 "' + outputFilepath + '"' 
-
-print("\n**********\n"+ffmpegCommand+"\n**********\n")
-
-os.system(ffmpegCommand)
-
-'''
-
-
-
-
-'''
-#flac
-ffmpeg 
-    -loop 1 
-    -framerate 2 
-    -i "$2/$3" 
-    -i "$2/$4" 
-    -vf "scale=2*trunc(iw/2):2*trunc(ih/2),setsar=1" 
-    -c:v libx264 
-    -preset medium 
-    -tune stillimage 
-    -crf 18 
-    -c:a copy 
-    -shortest 
-    -pix_fmt yuv420p 
-    -strict -2 "$2/$5.mp4"
-
-
-ffmpeg 
-    -loop 1 
-    -framerate 2 
-    -i "front.png" 
-    -i "testWAVfile.wav" 
-    -vf "scale=2*trunc(iw/2):2*trunc(ih/2),setsar=1,format=yuv420p" 
-    -c:v libx264 
-    -preset medium 
-    -tune stillimage 
-    -crf 18 
-    -c:a aac 
-    -shortest 
-    -vf scale=1920:1080  
-    "outputVideo.mp4"
-
-
-#mp3
-ffmpeg 
-    -loop 1 
-    -framerate 2 
-    -i "front.png" 
-    -i "testmp3file.MP3" 
-    -vf "scale=2*trunc(iw/2):2*trunc(ih/2),setsar=1" 
-    -c:v libx264 
-    -preset medium 
-    -tune stillimage 
-    -crf 18 
-    -c:a copy 
-    -shortest 
-    -pix_fmt yuv420p "$2/$5.mp4"  
-
-
-
-#wav
-ffmpeg -loop 1 -framerate 2 -i "front.png" -i "testWAVfile.wav" -vf "scale=2*trunc(iw/2):2*trunc(ih/2),setsar=1,format=yuv420p" -c:v libx264 -preset medium -tune stillimage -crf 18 -c:a aac -shortest -vf scale=1920:1080  "outputVideo.mp4"
-
-
-
-
-'''
-
-
-print("\n\n\n")
+    elif '-fullAlbum' in sys.argv: # and sys.argv.index('-fullalbum') < sys.argv.index('-songs'):
+        print('fullAlbum') #comesfirst')
+        renderEachSong(songsFilepath, imageFilepath, audioFormat, outputResolution)
+        fullAlbum(songsFilepath, audioFormat, imageFilepath, outputResolution)
+    else:
+        print("outputResolution = ", outputResolution)
+        renderEachSong(songsFilepath, imageFilepath, audioFormat, outputResolution)
