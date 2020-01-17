@@ -1,8 +1,0 @@
-file '../../../martinradio/uploads/Nayobe2//1. Good Things Come To Those Who Wait.flac' 
-file '../../../martinradio/uploads/Nayobe2//2. Guess I Fell In Love.flac' 
-file '../../../martinradio/uploads/Nayobe2//3. I Don'\''t Have To Make Believe.flac' 
-file '../../../martinradio/uploads/Nayobe2//4. Please Don'\''t Go.flac' 
-file '../../../martinradio/uploads/Nayobe2//5. Roses.flac' 
-file '../../../martinradio/uploads/Nayobe2//6. Second Chance For Love.flac' 
-file '../../../martinradio/uploads/Nayobe2//7. The More That I Need (The Less That I Have).flac' 
-file '../../../martinradio/uploads/Nayobe2//8. No Te Vayas.flac' 
