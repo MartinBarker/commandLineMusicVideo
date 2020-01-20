@@ -51,7 +51,7 @@ def fullAlbum(songsFilepath, audioFormat, imageFilepath, outputResolution):
         os.system("ffmpeg -f concat -safe 0 -i songinputs.txt -safe 0 '" + songsFilepath + "/concatAudio.mp3'")
         #os.system('rm inputs.txt')
         renderVideo(songsFilepath+'/concatAudio.mp3', 'concatAudio.mp3', imageFilepath, outputResolution, songsFilepath+'/fullAlbum')
-        #os.system('rm "'+ songsFilepath + '/concatAudio.mp3"')
+        os.system('rm "'+ songsFilepath + '/concatAudio.mp3"')
 
 def outputFilenameParse(outputFilename):
 

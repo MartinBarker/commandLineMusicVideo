@@ -1,0 +1,8 @@
+README.md
+setup.py
+commandLineMusicVideo/__init__.py
+commandLineMusicVideo/__main__.py
+commandLineMusicVideo.egg-info/PKG-INFO
+commandLineMusicVideo.egg-info/SOURCES.txt
+commandLineMusicVideo.egg-info/dependency_links.txt
+commandLineMusicVideo.egg-info/top_level.txt
