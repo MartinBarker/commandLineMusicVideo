@@ -2,6 +2,7 @@
 
 This is a Python3 [pip package](https://pypi.org/project/commandLineMusicVideo) that uses ffmpeg to render videos using an image and audio file as inputs.
 
+Tutorial Video: https://www.youtube.com/watch?v=tR6U8RrHubE
 Example video rendered using this package: https://www.youtube.com/watch?v=5SqLD4GEVHc&t=911s
 
 ## Quickstart
