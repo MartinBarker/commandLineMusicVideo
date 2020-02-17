@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="commandLineMusicVideo",
-    version="0.1.2",
+    version="0.1.3",
     author="Martin Barker",
     author_email="martinbarker99@gmail.com",
     description="A small example package",

@@ -15,6 +15,11 @@ def renderVideo(sourceAudioFilepath, filename, imageFilepath, resolution, output
         print("\n**********\n"+ffmpegCommand+"\n**********\n")
         os.system(ffmpegCommand)
 
+    elif filename.endswith('wav'):
+        ffmpegCommand = 'ffmpeg -loop 1 -framerate 2 -i "'+ imageFilepath +'" -i "'+ sourceAudioFilepath +'" -vf "scale=2*trunc(iw/2):2*trunc(ih/2),setsar=1" -c:v libx264 -preset medium -tune stillimage -crf 18 -c:a copy -b:a 320k -shortest -vf scale=' + resolution + ' -pix_fmt yuv420p "'+ outputFilename  +'.mp4"'
+        print("\n**********\n"+ffmpegCommand+"\n**********\n")
+        os.system(ffmpegCommand)
+
     else:
         print("file format not supported (yet), please tweet at me @martinradio_ or email me ")
 

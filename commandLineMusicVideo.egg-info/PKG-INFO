@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: commandLineMusicVideo
-Version: 0.1.2
+Version: 0.1.3
 Summary: A small example package
 Home-page: https://github.com/MartinBarker/commandLineMusicVideo
 Author: Martin Barker
@@ -8,7 +8,7 @@ Author-email: martinbarker99@gmail.com
 License: UNKNOWN
 Description: # commandLineMusicVideo
         
-        This is a [pip3 package](https://pypi.org/project/commandLineMusicVideo) that uses ffmpeg to render videos using an image and audio file as inputs.
+        This is a Python3 [pip package](https://pypi.org/project/commandLineMusicVideo) that uses ffmpeg to render videos using an image and audio file as inputs.
         
         Example video rendered using this package: https://www.youtube.com/watch?v=5SqLD4GEVHc&t=911s
         
@@ -18,7 +18,7 @@ Description: # commandLineMusicVideo
           ```ffmpeg```
           Which should give you an output with info on the version of ffmpeg installed.
         
-        * Download the commandLineMusicVideo package with this command: ```pip3 install commandLineMusicVideo==0.1.1```
+        * Download the commandLineMusicVideo package with this command: ```pip3 install commandLineMusicVideo==0.1.2```
         * Run the installed package with ```python3 -m commandLineMusicVideo -h -t``` to view the help page and test your ffmpeg.
         
         ## Examples
