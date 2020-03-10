@@ -6,6 +6,8 @@ Tutorial Video: https://www.youtube.com/watch?v=tR6U8RrHubE
 
 Example video rendered using this package: https://www.youtube.com/watch?v=5SqLD4GEVHc&t=911s
 
+commandLineMusicVideo currently supports mp3, flac, and wav audio files.
+
 ## Quickstart
 * Make sure you have ffmpeg installed on your command line, ensure ffmpeg is downloaded by running the command:
 

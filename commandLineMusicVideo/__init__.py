@@ -55,6 +55,20 @@ def fullAlbum(songsFilepath, audioFormat, imageFilepath, outputResolution):
 
         os.system('ffmpeg -i "' + concatString + '" -acodec copy "' + songsFilepath + '/concatAudio.mp3"')
 
+    elif audioFormat == 'wav':
+        print('wav')
+        songInputsFilepath = songsFilepath + "songinputs.txt"
+        print('songInputsFilepath = ', songInputsFilepath)
+        os.system('touch "' + songInputsFilepath + '"')
+        arr = os.listdir(songsFilepath)
+        for filename in arr:
+            if filename.endswith(audioFormat):
+                songLocation = filename
+                with open(songInputsFilepath, "a") as myfile:
+                    songLocationString = songLocation.replace("'", "'\\''")   #   '\''
+                    myfile.write("file '" + songLocationString +"' \n")
+        os.system("ffmpeg -f concat -safe 0 -i '" + songInputsFilepath + "' -safe 0 -b:a 320k '" + songsFilepath + "/concatAudio.mp3'")
+
     elif audioFormat == 'flac':
         #create filepath of where to save songinputs.txt file
         songInputsFilepath = songsFilepath + "songinputs.txt"
