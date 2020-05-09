@@ -54,6 +54,51 @@ def fullAlbum(songsFilepath, audioFormat, imageFilepath, outputResolution):
                 concatString = concatString + songLocation + '|'
 
         os.system('ffmpeg -i "' + concatString + '" -acodec copy "' + songsFilepath + '/concatAudio.mp3"')
+    elif audioFormat == 'aif':
+        print('aif audio full album')
+        #create filepath of where to save songinputs.txt file
+        songInputsFilepath = songsFilepath + "songinputs.txt"
+        print('songInputsFilepath = ', songInputsFilepath)
+        #create songinputs.txt file
+        os.system('touch "' + songInputsFilepath + '"')
+
+        #for each filename i filepath
+        arr = os.listdir(songsFilepath)
+        for filename in arr:
+            #if filename ends with audioFormat
+            if filename.endswith(audioFormat):
+                #combine path to file with filename
+                songLocation = filename
+                #open inputs.txt
+                with open(songInputsFilepath, "a") as myfile:
+                    #sanitize filepath string
+                    songLocationString = songLocation.replace("'", "'\\''")   #   '\''
+                    #write song location to songinputs.txt file
+                    myfile.write("file '" + songLocationString +"' \n")
+        os.system("cat " + songInputsFilepath)
+        print("SORTING FILE")
+        #fileToSort = open(songsFilepath + "bk.txt")
+
+        fn = songInputsFilepath #songsFilepath + "bk.txt"
+        sorted_fn = songInputsFilepath #songsFilepath + "bkSorted.txt"
+
+        with open(fn,'r') as first_file:
+            rows = first_file.readlines()
+        
+        #sort by first textual parts then number
+        sorted_rows = sorted(rows, key=lambda x: (x.strip().split()[:3],int(x.strip().split()[-1].split(".")[0])), reverse=False)
+
+        #write results to file
+        with open(sorted_fn,'w') as second_file:
+            for row in sorted_rows:
+                second_file.write(row)
+
+        #print('finished sorted = ')
+        #print(open(sorted_fn).read())
+        print("printing sorted file")
+        os.system('cat ' + songInputsFilepath)
+        os.system("ffmpeg -f concat -safe 0 -i '" + songInputsFilepath + "' -safe 0 -b:a 320k '" + songsFilepath + "/concatAudio.mp3'")
+
 
     elif audioFormat == 'flac':
         #create filepath of where to save songinputs.txt file
