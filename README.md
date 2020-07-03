@@ -45,6 +45,8 @@ The output videos will keep the image's aspect ratio.
 
 ```-fullAlbumOnly``` Only render the full album.
 
+```-sort1``` Sort the full album video tracklist alphabetically
+
 ```-outputResolution 1920:1080``` Set output resolution for video.
 
 * Output Filename Formatting Flags:
