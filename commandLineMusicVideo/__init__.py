@@ -1,5 +1,6 @@
 import os
 import sys
+import re
 
 def renderVideo(sourceAudioFilepath, filename, imageFilepath, resolution, outputFilename):
     print('renderVideo()')
@@ -35,48 +36,49 @@ def renderVideo(sourceAudioFilepath, filename, imageFilepath, resolution, output
 
 def fullAlbum(songsFilepath, audioFormat, imageFilepath, outputResolution):
     print('fullAlbum()')
-    '''
-    Render an full album video
-    Inputs:
-        songsFilepath = filepath of where the songs are located
-        audioFormat = format of the songs you want to use to make the full album video
-        imageFilepath = filepath of imagefile you want to use as input
-        outputResolution = output video file resolution, needs to be a string formatted like '1920x1080'
-    Output:
-        A single video titled 'fullAlbum' will be outputted using every song in the songsFilepath folder
-    '''
-    if audioFormat == 'mp3':
-        concatString = "concat:"
-        arr = os.listdir(songsFilepath)
-        for filename in arr:
-            if filename.endswith(audioFormat):
-                songLocation = songsFilepath + '/' + filename
-                concatString = concatString + songLocation + '|'
+    
+    #create songinputs.txt file
+    songInputsFilepath = songsFilepath + "songinputs.txt"
+    os.system('touch "' + songInputsFilepath + '"')
 
-        os.system('ffmpeg -i "' + concatString + '" -acodec copy "' + songsFilepath + '/concatAudio.mp3"')
+    #for each filename i filepath
+    arr = os.listdir(songsFilepath)
+    for filename in arr:
+        #if filename ends with audioFormat
+        if filename.endswith(audioFormat):
+            #combine path to file with filename
+            songLocation = filename
+            #open inputs.txt
+            with open(songInputsFilepath, "a") as myfile:
+                #sanitize filepath string
+                songLocationString = songLocation.replace("'", "'\\''")   #   '\''
+                #write song location to songinputs.txt file
+                myfile.write("file '" + songLocationString +"' \n")
+    
 
-    elif audioFormat == 'flac':
-        #create filepath of where to save songinputs.txt file
-        songInputsFilepath = songsFilepath + "songinputs.txt"
-        print('songInputsFilepath = ', songInputsFilepath)
-        #create songinputs.txt file
-        os.system('touch "' + songInputsFilepath + '"')
+    if '-sort1' in sys.argv:
+        #now sort the file
+        print("SORTING FILE")
+        
+        #open file to read
+        shopping = open(songInputsFilepath, "r")
+        #get lines from file
+        lines = shopping.readlines()
+        #sort lines
+        #lines.sort(key=lambda x: int(re.search('\d+', x)))
+        lines.sort(key=lambda x: int(re.findall('\d+', x)[0]))
+        #close file
+        shopping.close()
 
-        #for each filename i filepath
-        arr = os.listdir(songsFilepath)
-        for filename in arr:
-            #if filename ends with audioFormat
-            if filename.endswith(audioFormat):
-                #combine path to file with filename
-                songLocation = filename
-                #open inputs.txt
-                with open(songInputsFilepath, "a") as myfile:
-                    #sanitize filepath string
-                    songLocationString = songLocation.replace("'", "'\\''")   #   '\''
-                    #write song location to songinputs.txt file
-                    myfile.write("file '" + songLocationString +"' \n")
-        os.system("ffmpeg -f concat -safe 0 -i '" + songInputsFilepath + "' -safe 0 -b:a 320k '" + songsFilepath + "/concatAudio.mp3'")
-
+        #open file for writing
+        shoppingwrite = open(songInputsFilepath, "w")
+        #write sorted lines to file
+        shoppingwrite.writelines(lines)
+        #close file for writing
+        shoppingwrite.close()
+    print("Creating full album video with this tracklist:")
+    os.system("cat " + songInputsFilepath)
+    os.system("ffmpeg -f concat -safe 0 -i '" + songInputsFilepath + "' -safe 0 -b:a 320k '" + songsFilepath + "/concatAudio.mp3'")
     #At this point, concatAudio.mp3 is assumed to exist in the songsFilepath folder
     renderVideo(songsFilepath+'/concatAudio.mp3', 'concatAudio.mp3', imageFilepath, outputResolution, songsFilepath+'/fullAlbum')
     
@@ -134,12 +136,14 @@ if '-h' in sys.argv:
     print('-songs "folderFilepath/" "audioFormat" "imageName.jpeg"   //render each audioFormat file in the folderFilepath, using the imageName also found in the folderFilepath      ')
     print(' -fullAlbum                                               //render full album with these songs as well')
     print(' -fullAlbumOnly                                           //only render the full album')
+    print(" -sort1                                                   //sorts full album alphabetically")
     print('-outputResolution 1920:1080                               //set output resolution for video')
     print('\n~Filename Output Flags~\n')
     print('-removeFirst 3                                            //remove first # chars from song filename for output filename')
     print('-removeUpTo "-"                                           //remove up to and including this char') 
     print('-removeAfter "-"                                          //remove everything after and including this char')
     print('-titleize                                                 //capitalize first letter of each word of output filename')    
+
 
 if '-test' in sys.argv:
     #test your ffmpeg installation
